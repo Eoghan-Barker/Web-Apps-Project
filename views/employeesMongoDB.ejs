@@ -1,1 +1,15 @@
 <h1>Employees (MongoDB)</h1>
+<table border="1">
+  <tr>
+    <th>EID</th>
+    <th>Phone</th>
+    <th>Email</th>
+  </tr>
+  <% employees.forEach((e) => { %>
+    <tr>
+      <td><%= e._id %></td>
+      <td><%= e.phone %></td>
+      <td><%= e.email %></td>
+    </tr>
+  <% }) %>
+</table>
