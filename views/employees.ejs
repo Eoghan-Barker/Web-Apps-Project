@@ -7,11 +7,13 @@
     <th>Salary</th>
     <th>Update</th>
   </tr>
-<% students.forEach((student) => { %>
+<% employees.forEach((e) => { %>
   <tr>
-    <td><%= student.id %></td>
-    <td><%= student.name %></td>
-    <td><%= student.course %></td>
+    <td><%= e.eid %></td>
+    <td><%= e.ename %></td>
+    <td><%= e.role %></td>
+    <td><%= e.salary %></td>
+    <td></td>
   </tr>
 <% }) %>
 </table>

@@ -1,23 +1,35 @@
 var express = require("express");
 var app = express();
 var ejs = require("ejs");
+var sqlDAO = require("./mysqlDAO");
 var mongoDAO = require("./mongoDAO");
 app.set("view engine", "ejs");
 
 app.get("/", (req, res) => {
   console.log("GET on /");
-  //res.sendFile(__dirname + "/HomePage.html");
   res.render("home");
 });
 
 app.get("/employees", (req, res) => {
   console.log("GET on /employees");
-  res.render("employees");
+
+  sqlDAO.getEmp().then(data => {
+    res.render("employees", {employees: data});
+  })
+  .catch(err => {
+    res.send(err);
+  });
 });
 
 app.get("/departments", (req, res) => {
   console.log("GET on /departments");
-  res.render("departments");
+  
+  sqlDAO.getDept().then(data => {
+    res.render("departments", {departments: data});
+  })
+  .catch(err => {
+    res.send(err);
+  });
 });
 
 app.get("/employeesMongoDB", (req, res) => {
