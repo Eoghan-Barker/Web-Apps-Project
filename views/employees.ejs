@@ -7,13 +7,13 @@
     <th>Salary</th>
     <th>Update</th>
   </tr>
-<% employees.forEach((e) => { %>
+  <% employees.forEach((e) => { %>
   <tr>
     <td><%= e.eid %></td>
     <td><%= e.ename %></td>
     <td><%= e.role %></td>
     <td><%= e.salary %></td>
-    <td></td>
+    <td><a href="/employees/edit/<%= e.eid %>">Update</a></td>
   </tr>
-<% }) %>
+  <% }) %>
 </table>

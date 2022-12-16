@@ -19,7 +19,7 @@ pmysql
 
 var getEmp = function () {
     return new Promise((resolve, reject) => {
-        pool.query('SELECT * FROM employee')
+        pool.query("SELECT * FROM employee")
             .then((data) => {
                 resolve(data)
             })
@@ -33,7 +33,7 @@ var getEmp = function () {
 
 var getDept = function () {
     return new Promise((resolve, reject) => {
-        pool.query('SELECT * FROM dept')
+        pool.query("SELECT * FROM dept")
             .then((data) => {
                 resolve(data)
             })
@@ -45,7 +45,7 @@ var getDept = function () {
 
 }
 
-var getUpdate = function () {
+var getUpdate = function (eid) {
     return new Promise((resolve, reject) => {
         pool.query(`select * from employee where eid like "${eid}";`)
             .then((data) => {
