@@ -106,6 +106,7 @@ app.get("/depts/delete/:did", (req, res) => {
     });
 });
 
+// MongoDB employees page
 app.get("/employeesMongoDB", (req, res) => {
   console.log("GET on /employeesMngoDB");
 
@@ -117,6 +118,11 @@ app.get("/employeesMongoDB", (req, res) => {
     .catch((error) => {
       res.send(error);
     });
+});
+
+// MongoDB add employee page
+app.get("/employeesMongoDB/add", (req, res) => {
+  res.render("addemployeeMongoDB")
 });
 
 app.listen(3004, () => {
