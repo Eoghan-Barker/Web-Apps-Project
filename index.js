@@ -6,11 +6,13 @@ var mongoDAO = require("./mongoDAO");
 const { check, validationResult } = require("express-validator");
 app.set("view engine", "ejs");
 
+// Home page
 app.get("/", (req, res) => {
   console.log("GET on /");
   res.render("home");
 });
 
+// Employees page
 app.get("/employees", (req, res) => {
   console.log("GET on /employees");
 
@@ -24,6 +26,7 @@ app.get("/employees", (req, res) => {
     });
 });
 
+// Edit employee page
 app.get("/employees/edit/:eid", (req, res) => {
   sqlDAO
     .getUpdate(req.params.eid)
@@ -38,28 +41,47 @@ app.get("/employees/edit/:eid", (req, res) => {
 
 app.post(
   "/employees/edit/:eid",
-  [check("ename").isLength({ min: 5 }).withMessage("Employee name must be at least 5 characters")],
-  [check("role").equals("Manager").withMessage("Role must be either Manager or Employee")],
+  [
+    check("ename")
+      .isLength({ min: 5 })
+      .withMessage("Employee name must be at least 5 characters"),
+  ],
+  [
+    check("role")
+      .toUpperCase()
+      .isIn(["MANAGER", "EMPLOYEE"])
+      .withMessage("Role must be either Manager or Employee"),
+  ],
+  [check("salary").isFloat({ min: 0 }).withMessage("Salary must be > 0 ")],
   (req, res) => {
+    console.log(req.body);
+    var id = req.params.eid;
+    var name = req.body.ename;
+    var role = req.body.role;
+    var salary = req.body.salary;
+
     const errors = validationResult(req);
+
     if (!errors.isEmpty()) {
-      sqlDAO
-    .getUpdate(req.params.eid)
-    .then((data) => {
-      console.log(data);
-      res.render("editemployee", { errors: errors.errors, employee: data[0] });;
-    })
-    .catch((err) => {
-      res.send(err);
-    });
+      res.render("editemployee", {
+        errors: errors.errors,
+        employee: { eid: id, ename: name, role: role, salary: salary },
+      });
     } else {
-      // Further processing on
-      // user supplied data
+      sqlDAO
+        .updateEmployee(id, name, role, salary)
+        .then(() => {
+          res.redirect("/employees");
+        })
+        .catch((error) => {
+          res.send(error);
+        });
     }
   }
 );
 
-app.get("/departments", (req, res) => {
+// Departements page
+app.get("/depts", (req, res) => {
   console.log("GET on /departments");
 
   sqlDAO
@@ -69,6 +91,18 @@ app.get("/departments", (req, res) => {
     })
     .catch((err) => {
       res.send(err);
+    });
+});
+
+// Delete department
+app.get("/depts/delete/:did", (req, res) => {
+  sqlDAO
+    .deleteDept(req.params.did)
+    .then((data) => {
+      res.redirect("/depts");
+    })
+    .catch(() => {
+      res.render("deleteError", { d: req.params.did });
     });
 });
 
