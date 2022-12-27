@@ -34,9 +34,12 @@ var getUpdate = function (eid) {
     pool
       .query(`select * from employee where eid like "${eid}";`)
       .then((data) => {
+        console.log("success");
+        console.log(data);
         resolve(data);
       })
       .catch((error) => {
+        console.log(error);
         reject(error);
       });
   });

@@ -150,15 +150,29 @@ app.post(
       console.log("errors not empty" + errors.errors);
       res.render("addemployeeMongoDB", { errors: errors.errors });
     } else {
-      mongoDAO
-        .addEmployee(req.body)
+    // Check if the ID exists in SQL DB, if not display the error screen and dont add to mongoDB
+    // otherwise check if the ID exists in the mongo database, if yes then display the error screen
+    // otherwise add to the mongo database
+      sqlDAO
+        .getUpdate(req.body._id)
         .then((data) => {
-          console.log("posted successfully");
-          res.redirect("/employeesMongoDB");
+          if (data.length != 0) {
+            mongoDAO
+              .addEmployee(req.body)
+              .then((data) => {
+                console.log("posted successfully");
+                res.redirect("/employeesMongoDB");
+              })
+              .catch((err) => {
+                console.log("error posting");
+                res.render("mongoError", { d: req.body._id });
+              });
+          } else {
+            res.render("notInSqlError", { d: req.body._id });
+          }
         })
         .catch((err) => {
-          console.log("error posting");
-          res.render("mongoError", { d: req.body._id });
+          res.send(err);
         });
     }
   }
