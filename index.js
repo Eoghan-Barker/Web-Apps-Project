@@ -1,12 +1,12 @@
-var express = require("express");
-var app = express();
-var ejs = require("ejs");
-var bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({ extended: false }));
+const express = require("express");
+const app = express();
+const ejs = require("ejs");
+const bodyParser = require("body-parser");
+const { check, validationResult } = require("express-validator");
 var sqlDAO = require("./mysqlDAO");
 var mongoDAO = require("./mongoDAO");
-const { check, validationResult } = require("express-validator");
-const e = require("express");
+
+app.use(bodyParser.urlencoded({ extended: false }));
 app.set("view engine", "ejs");
 
 // Home page
@@ -19,6 +19,7 @@ app.get("/", (req, res) => {
 app.get("/employees", (req, res) => {
   console.log("GET on /employees");
 
+  // Show sql employee table
   sqlDAO
     .getEmp()
     .then((data) => {
@@ -31,6 +32,9 @@ app.get("/employees", (req, res) => {
 
 // Edit employee page
 app.get("/employees/edit/:eid", (req, res) => {
+  console.log("GET on /employees/edit");
+
+  // Show sql data for selected employee
   sqlDAO
     .getUpdate(req.params.eid)
     .then((data) => {
@@ -42,6 +46,8 @@ app.get("/employees/edit/:eid", (req, res) => {
     });
 });
 
+// Handle post request for editing employee details in sql table
+// Uses express validation middleware to ensure fields contain correct information
 app.post(
   "/employees/edit/:eid",
   [
@@ -64,6 +70,8 @@ app.post(
 
     const errors = validationResult(req);
 
+    // If no errors, send the sql query to update employee, else stay on page and
+    // display the error messages
     if (!errors.isEmpty()) {
       res.render("editemployee", {
         errors: errors.errors,
@@ -87,8 +95,9 @@ app.post(
 
 // Departements page
 app.get("/depts", (req, res) => {
-  console.log("GET on /departments");
+  console.log("GET on /depts");
 
+  // Show department table from sql DB
   sqlDAO
     .getDept()
     .then((data) => {
@@ -101,6 +110,10 @@ app.get("/depts", (req, res) => {
 
 // Delete department
 app.get("/depts/delete/:did", (req, res) => {
+  console.log("GET on /depts/delete");
+
+  // Show delete department view and the details for that department from the database
+  // If the department can't be deleted show the correct error view
   sqlDAO
     .deleteDept(req.params.did)
     .then((data) => {
@@ -115,6 +128,7 @@ app.get("/depts/delete/:did", (req, res) => {
 app.get("/employeesMongoDB", (req, res) => {
   console.log("GET on /employeesMongoDB");
 
+  // Show the employees from mongoDB
   mongoDAO
     .findAll()
     .then((data) => {
@@ -127,9 +141,11 @@ app.get("/employeesMongoDB", (req, res) => {
 
 // MongoDB add employee page
 app.get("/employeesMongoDB/add", (req, res) => {
-  res.render("addEmployeeMongoDB", { employee: e, errors: undefined });
+  res.render("addEmployeeMongoDB", { errors: undefined });
 });
 
+// Handle post request for adding an employee to the mongo database
+// Uses express validation middleware
 app.post(
   "/employeesMongoDB/add",
   [
@@ -145,7 +161,7 @@ app.post(
   [check("email").isEmail().withMessage("Must be a valid email address")],
   (req, res) => {
     const errors = validationResult(req);
-    console.log();
+    
     if (!errors.isEmpty()) {
       console.log("errors not empty" + errors.errors);
       res.render("addemployeeMongoDB", { errors: errors.errors });

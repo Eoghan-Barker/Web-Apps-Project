@@ -2,6 +2,7 @@ const MongoClient = require("mongodb").MongoClient;
 var db;
 var coll;
 
+// Connect to MongoDB and select the database and collection to use
 MongoClient.connect("mongodb://localhost:27017")
   .then((client) => {
     db = client.db("employeesDB");
@@ -11,6 +12,7 @@ MongoClient.connect("mongodb://localhost:27017")
     console.log(error.message);
   });
 
+// Show all employees in the collection
 var findAll = function () {
   return new Promise((resolve, reject) => {
     var cursor = coll.find();
@@ -25,6 +27,7 @@ var findAll = function () {
   });
 };
 
+// Add an employee to the collection
 var addEmployee = function (employee) {
   return new Promise((resolve, reject) => {
     coll

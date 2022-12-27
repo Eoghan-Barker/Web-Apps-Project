@@ -1,6 +1,7 @@
 var pmysql = require("promise-mysql");
 var pool;
 
+// Connect to the mySql database
 pmysql
   .createPool({
     connectionLimit: 3,
@@ -16,6 +17,7 @@ pmysql
     console.log("pool error:" + e);
   });
 
+// Show the employees table
 var getEmp = function () {
   return new Promise((resolve, reject) => {
     pool
@@ -29,25 +31,23 @@ var getEmp = function () {
   });
 };
 
+// Show the details of a specified employee
 var getUpdate = function (eid) {
   return new Promise((resolve, reject) => {
     pool
       .query(`select * from employee where eid like "${eid}";`)
       .then((data) => {
-        console.log("success");
-        console.log(data);
         resolve(data);
       })
       .catch((error) => {
-        console.log(error);
         reject(error);
       });
   });
 };
 
+// Update details of specified employee
 var updateEmployee = function (employee) {
   return new Promise((resolve, reject) => {
-
     var myQuery = {
       sql: `Update employee set ename =?, role =?, salary =? where eid like "${employee.eid}";`,
       values: [employee.ename, employee.role, employee.salary],
@@ -64,6 +64,7 @@ var updateEmployee = function (employee) {
   });
 };
 
+// Show department table with a join on the location table using locationID
 var getDept = function () {
   return new Promise((resolve, reject) => {
     pool
@@ -79,6 +80,7 @@ var getDept = function () {
   });
 };
 
+// Delete a specified department
 var deleteDept = function (did) {
   return new Promise((resolve, reject) => {
     pool
