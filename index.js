@@ -4,6 +4,7 @@ var ejs = require("ejs");
 var sqlDAO = require("./mysqlDAO");
 var mongoDAO = require("./mongoDAO");
 const { check, validationResult } = require("express-validator");
+const e = require("express");
 app.set("view engine", "ejs");
 
 // Home page
@@ -108,7 +109,7 @@ app.get("/depts/delete/:did", (req, res) => {
 
 // MongoDB employees page
 app.get("/employeesMongoDB", (req, res) => {
-  console.log("GET on /employeesMngoDB");
+  console.log("GET on /employeesMongoDB");
 
   mongoDAO
     .findAll()
@@ -122,8 +123,44 @@ app.get("/employeesMongoDB", (req, res) => {
 
 // MongoDB add employee page
 app.get("/employeesMongoDB/add", (req, res) => {
-  res.render("addemployeeMongoDB")
+    res.render("addEmployeeMongoDB", { employee: e, errors: undefined })
 });
+
+app.post('/employeesMongoDB/add',
+  [
+    check("_id")
+      .isLength({ min: 4, max: 4})
+      .withMessage("EID must be 4 characters"),
+  ],
+  [
+    check("phone")
+      .isLength({ min: 6})
+      .withMessage("Phone must be > 5 characters"),
+  ],
+  [
+    check("email")
+      .isEmail()
+      .withMessage("Must be a valid email address")
+  ], 
+  (req, res) => {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) {
+      console.log("errors not empty" + errors.errors);
+      res.render("addemployeeMongoDB", {errors: errors.errors})
+    } else {
+      mongoDAO
+        .addEmployee(req.body)
+        .then((data) => {
+          console.log("posted successfully")
+          res.redirect("/employeesMongoDB")
+        })
+        .catch((err) => {
+          console.log("error posting")
+          res.render("mongoError", { d: req.params._id })
+        })
+    }
+  }
+);
 
 app.listen(3004, () => {
   console.log("listening on port 3004");
