@@ -1,6 +1,8 @@
 var express = require("express");
 var app = express();
 var ejs = require("ejs");
+var bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded({ extended: false }));
 var sqlDAO = require("./mysqlDAO");
 var mongoDAO = require("./mongoDAO");
 const { check, validationResult } = require("express-validator");
@@ -55,7 +57,6 @@ app.post(
   ],
   [check("salary").isFloat({ min: 0 }).withMessage("Salary must be > 0 ")],
   (req, res) => {
-    console.log(req.body);
     var id = req.params.eid;
     var name = req.body.ename;
     var role = req.body.role;
@@ -70,13 +71,16 @@ app.post(
       });
     } else {
       sqlDAO
-        .updateEmployee(id, name, role, salary)
-        .then(() => {
-          res.redirect("/employees");
+        .updateEmployee(req.body)
+        .then((data) => {
+          console.log("Update Success");
         })
         .catch((error) => {
+          console.log("Update Failure");
           res.send(error);
         });
+
+      res.redirect("/employees");
     }
   }
 );
@@ -123,41 +127,39 @@ app.get("/employeesMongoDB", (req, res) => {
 
 // MongoDB add employee page
 app.get("/employeesMongoDB/add", (req, res) => {
-    res.render("addEmployeeMongoDB", { employee: e, errors: undefined })
+  res.render("addEmployeeMongoDB", { employee: e, errors: undefined });
 });
 
-app.post('/employeesMongoDB/add',
+app.post(
+  "/employeesMongoDB/add",
   [
     check("_id")
-      .isLength({ min: 4, max: 4})
+      .isLength({ min: 4, max: 4 })
       .withMessage("EID must be 4 characters"),
   ],
   [
     check("phone")
-      .isLength({ min: 6})
+      .isLength({ min: 6 })
       .withMessage("Phone must be > 5 characters"),
   ],
-  [
-    check("email")
-      .isEmail()
-      .withMessage("Must be a valid email address")
-  ], 
+  [check("email").isEmail().withMessage("Must be a valid email address")],
   (req, res) => {
     const errors = validationResult(req);
-    if(!errors.isEmpty()) {
+    console.log();
+    if (!errors.isEmpty()) {
       console.log("errors not empty" + errors.errors);
-      res.render("addemployeeMongoDB", {errors: errors.errors})
+      res.render("addemployeeMongoDB", { errors: errors.errors });
     } else {
       mongoDAO
         .addEmployee(req.body)
         .then((data) => {
-          console.log("posted successfully")
-          res.redirect("/employeesMongoDB")
+          console.log("posted successfully");
+          res.redirect("/employeesMongoDB");
         })
         .catch((err) => {
-          console.log("error posting")
-          res.render("mongoError", { d: req.params._id })
-        })
+          console.log("error posting");
+          res.render("mongoError", { d: req.body._id });
+        });
     }
   }
 );

@@ -44,6 +44,7 @@ var getUpdate = function (eid) {
 
 var updateEmployee = function (employee) {
   return new Promise((resolve, reject) => {
+
     var myQuery = {
       sql: `Update employee set ename =?, role =?, salary =? where eid like "${employee.eid}";`,
       values: [employee.ename, employee.role, employee.salary],
@@ -52,10 +53,10 @@ var updateEmployee = function (employee) {
     pool
       .query(myQuery)
       .then((data) => {
-        console.log(data);
+        resolve(data);
       })
       .catch((error) => {
-        console.log(error);
+        reject(error);
       });
   });
 };

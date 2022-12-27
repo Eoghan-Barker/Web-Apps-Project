@@ -27,15 +27,15 @@ var findAll = function () {
 
 var addEmployee = function (employee) {
   return new Promise((resolve, reject) => {
-    var cursor = coll.find()
-    cursor.toArray()
+    coll
+      .insertOne(employee)
       .then((documents) => {
         resolve(documents);
       })
       .catch((error) => {
         reject(error);
-      })
-  })
-}
+      });
+  });
+};
 
 module.exports = { findAll, addEmployee };
